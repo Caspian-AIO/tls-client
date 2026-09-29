@@ -343,9 +343,9 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		if ok {
 			switch kind {
 			case transportHTTP1:
-				req.Header.Del("priority")
+				deleteHeader(req.Header, "priority")
 			case transportHTTP2, transportHTTP3:
-				if req.Header.Get("priority") == "" {
+				if !hasHeader(req.Header, "priority") {
 					req.Header.Set("priority", "u=0, i")
 				}
 			}

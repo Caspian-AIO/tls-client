@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 func Int64ToInt(x int64) (int, error) {
@@ -36,4 +39,22 @@ func generateGREASESettingValue() uint64 {
 		val = 1
 	}
 	return uint64(val)
+}
+
+func hasHeader(header http.Header, name string) bool {
+	for key := range header {
+		if strings.EqualFold(key, name) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func deleteHeader(header http.Header, name string) {
+	for key := range header {
+		if strings.EqualFold(key, name) {
+			delete(header, key)
+		}
+	}
 }
