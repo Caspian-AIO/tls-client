@@ -40,6 +40,3 @@ GOOS=windows CGO_ENABLED=1 GOARCH=386 CC="i686-w64-mingw32-gcc" go build -buildm
 # CC is needed when you cross compile from OSX to Windows
 echo 'Build Windows 64 Bit'
 GOOS=windows CGO_ENABLED=1 GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -buildmode=c-shared -o ./dist/tls-client-windows-64-$1.dll
-
-echo 'Build with xgo'
-xgo -buildmode=c-shared -out dist/tls-client-xgo-$1 .
