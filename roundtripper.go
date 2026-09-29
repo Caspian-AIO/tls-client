@@ -85,6 +85,7 @@ type roundTripper struct {
 
 	insecureSkipVerify          bool
 	withRandomTlsExtensionOrder bool
+	withAutoPriorityHeader      bool
 	disableIPV6                 bool
 	disableIPV4                 bool
 }
@@ -336,6 +337,20 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	t := rt.cachedTransports[addr]
 	rt.cachedTransportsLck.Unlock()
+
+	if rt.withAutoPriorityHeader {
+		kind, ok := rt.cachedKind(addr)
+		if ok {
+			switch kind {
+			case transportHTTP1:
+				req.Header.Del("priority")
+			case transportHTTP2, transportHTTP3:
+				if req.Header.Get("priority") == "" {
+					req.Header.Set("priority", "u=0, i")
+				}
+			}
+		}
+	}
 
 	resp, err := t.RoundTrip(req)
 	if err != nil && errors.Is(err, errProtocolChanged) {
@@ -716,7 +731,7 @@ func (rt *roundTripper) getDialTLSAddr(req *http.Request) string {
 	return net.JoinHostPort(host, "443")
 }
 
-func newRoundTripper(clientProfile profiles.ClientProfile, transportOptions *TransportOptions, serverNameOverwrite string, insecureSkipVerify, withRandomTlsExtensionOrder, forceHttp1, disableHttp3, disableSessionTickets, enableH3Racing bool, certificatePins map[string][]string, badPinHandlerFunc BadPinHandlerFunc, disableIPV6, disableIPV4 bool, bandwidthTracker bandwidth.BandwidthTracker, proxyURL string, dialer ...proxy.ContextDialer) (http.RoundTripper, error) {
+func newRoundTripper(clientProfile profiles.ClientProfile, transportOptions *TransportOptions, serverNameOverwrite string, insecureSkipVerify, withRandomTlsExtensionOrder, withAutoPriorityHeader, forceHttp1, disableHttp3, disableSessionTickets, enableH3Racing bool, certificatePins map[string][]string, badPinHandlerFunc BadPinHandlerFunc, disableIPV6, disableIPV4 bool, bandwidthTracker bandwidth.BandwidthTracker, proxyURL string, dialer ...proxy.ContextDialer) (http.RoundTripper, error) {
 	pinner, err := NewCertificatePinner(certificatePins)
 	if err != nil {
 		return nil, fmt.Errorf("can not instantiate certificate pinner: %w", err)
@@ -746,6 +761,7 @@ func newRoundTripper(clientProfile profiles.ClientProfile, transportOptions *Tra
 		forceHttp1:                  forceHttp1,
 		disableHttp3:                disableHttp3,
 		withRandomTlsExtensionOrder: withRandomTlsExtensionOrder,
+		withAutoPriorityHeader:      withAutoPriorityHeader,
 		connectionFlow:              clientProfile.GetConnectionFlow(),
 		clientHelloId:               clientProfile.GetClientHelloId(),
 		cachedTransports:            make(map[string]http.RoundTripper),

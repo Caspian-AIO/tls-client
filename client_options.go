@@ -87,6 +87,7 @@ type httpClientConfig struct {
 	followRedirects             bool
 	insecureSkipVerify          bool
 	withRandomTlsExtensionOrder bool
+	withAutoPriorityHeader      bool
 	forceHttp1                  bool
 	disableHttp3                bool
 	disableSessionTickets       bool
@@ -223,6 +224,13 @@ func WithCustomRedirectFunc(redirectFunc func(req *http.Request, via []*http.Req
 func WithRandomTLSExtensionOrder() HttpClientOption {
 	return func(config *httpClientConfig) {
 		config.withRandomTlsExtensionOrder = true
+	}
+}
+
+// WithAutoPriorityHeader configures a TLS client to automatically set/remove the "priority" header depending on the negotiated HTTP version.
+func WithAutoPriorityHeader() HttpClientOption {
+	return func(config *httpClientConfig) {
+		config.withAutoPriorityHeader = true
 	}
 }
 

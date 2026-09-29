@@ -87,6 +87,7 @@ type RequestInput struct {
 	WithCustomCookieJar         bool                `json:"withCustomCookieJar"`
 	WithoutCookieJar            bool                `json:"withoutCookieJar"`
 	WithRandomTLSExtensionOrder bool                `json:"withRandomTLSExtensionOrder"`
+	WithAutoPriorityHeader      bool                `json:"withAutoPriorityHeader"`
 }
 
 // CustomTlsClient contains custom TLS specifications to construct a client from.

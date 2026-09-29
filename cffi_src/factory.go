@@ -348,6 +348,10 @@ func getTlsClient(requestInput RequestInput, sessionId string, withSession bool)
 		options = append(options, tls_client.WithRandomTLSExtensionOrder())
 	}
 
+	if requestInput.WithAutoPriorityHeader {
+		options = append(options, tls_client.WithAutoPriorityHeader())
+	}
+
 	if requestInput.ForceHttp1 {
 		options = append(options, tls_client.WithForceHttp1())
 	}
