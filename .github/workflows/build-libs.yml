@@ -33,9 +33,12 @@ jobs:
 
           $env:CGO_ENABLED = "1"
 
+          # v1.16.0 -> 1.16.0
+          $version = "${{ github.ref_name }}".TrimStart("v")
+
           go build `
             -buildmode=c-shared `
-            -o dist/tls-client-windows-64.dll `
+            -o "dist/tls-client-windows-64-$version.dll" `
             ./cffi_dist
 
       - name: Upload build artifact
@@ -43,8 +46,8 @@ jobs:
         with:
           name: windows-amd64
           path: |
-            dist/tls-client-windows-64.dll
-            dist/tls-client-windows-64.h
+            dist/*.dll
+            dist/*.h
 
 
   build-darwin-amd64:
@@ -68,10 +71,13 @@ jobs:
         run: |
           mkdir -p dist
 
+          # v1.16.0 -> 1.16.0
+          VERSION="${GITHUB_REF_NAME#v}"
+
           CGO_ENABLED=1 \
           go build \
             -buildmode=c-shared \
-            -o dist/tls-client-darwin-amd64.dylib \
+            -o "dist/tls-client-darwin-amd64-${VERSION}.dylib" \
             ./cffi_dist
 
       - name: Upload build artifact
@@ -79,8 +85,8 @@ jobs:
         with:
           name: darwin-amd64
           path: |
-            dist/tls-client-darwin-amd64.dylib
-            dist/tls-client-darwin-amd64.h
+            dist/*.dylib
+            dist/*.h
 
 
   build-darwin-arm64:
@@ -104,10 +110,13 @@ jobs:
         run: |
           mkdir -p dist
 
+          # v1.16.0 -> 1.16.0
+          VERSION="${GITHUB_REF_NAME#v}"
+
           CGO_ENABLED=1 \
           go build \
             -buildmode=c-shared \
-            -o dist/tls-client-darwin-arm64.dylib \
+            -o "dist/tls-client-darwin-arm64-${VERSION}.dylib" \
             ./cffi_dist
 
       - name: Upload build artifact
@@ -115,8 +124,8 @@ jobs:
         with:
           name: darwin-arm64
           path: |
-            dist/tls-client-darwin-arm64.dylib
-            dist/tls-client-darwin-arm64.h
+            dist/*.dylib
+            dist/*.h
 
 
   release:
@@ -142,4 +151,5 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            release-artifacts/*
+            release-artifacts/*.dll
+            release-artifacts/*.dylib
